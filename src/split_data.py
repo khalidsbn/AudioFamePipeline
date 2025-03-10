@@ -3,6 +3,12 @@ import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import train_test_split
+import sys
+import os
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'configs'))
+
+from config import split_data_config
 
 class DataLoader:
     """Handles data loading operations"""
@@ -11,6 +17,7 @@ class DataLoader:
 
     def load_data(self) -> pd.DataFrame:
         """Load data from CSV"""
+        print(f"Loading data from: {os.path.abspath(self.file_path)}")  # Debugging line
         return pd.read_csv(self.file_path)
     
 class DataSplitter:
@@ -52,3 +59,14 @@ class SpotifyPipeline:
         # Save results
         self.splitter.save_data(train_df, self.config['train_path'])
         self.splitter.save_data(test_df, self.config['test_path'])
+
+
+# Get the parent directory and add it to the Python path
+
+if __name__ == '__main__':
+    pipeline = SpotifyPipeline(split_data_config)
+    pipeline.run()
+
+
+
+
