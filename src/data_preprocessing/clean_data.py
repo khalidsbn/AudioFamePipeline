@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.pipeline import Pipeline
 from helper_classes import DropNaN, TextProcessing, DateProcessing
 
 # Load your dataset
@@ -23,3 +24,11 @@ audio_features = [
 df_track = df[track_metadata]
 df_playlist = df[playlist_metadata]
 df_audio = df[audio_features]
+
+track_pipeline = Pipeline([
+    ('TrackNameProcessing', TextProcessing(column_name='track_name', feature='track')),
+    ('TrackArtistProcessing', TextProcessing(column_name='track_artist', feature='artist')),
+    ('TrackAlbumNameProcessing', TextProcessing(column_name='track_album_name', feature='album')),
+    ('DateProcessing', DateProcessing()),
+    ('DropNaN', DropNaN())
+])
