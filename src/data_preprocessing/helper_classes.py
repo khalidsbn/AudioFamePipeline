@@ -90,3 +90,13 @@ class DateProcessing(BaseEstimator, TransformerMixin):
     X["track_album_release_month"] = X["track_album_release_date"].dt.month.astype("Int64")
     X["track_album_release_day"] = X["track_album_release_date"].dt.day.astype("Int64")
     return X.drop('track_album_release_date', axis=1)
+  
+  # To Process PlayList features
+class SubgenreExtractor(BaseEstimator, TransformerMixin):
+  def fit(self, X, y=None):
+    return self
+  def transform(self, X):
+    X = X.copy()
+    X['playlist_subgenre_first_word'] = X.playlist_subgenre.str.split(' ').str[0]
+    X['playlist_subgenre_last_word'] = X.playlist_subgenre.str.split(' ').str[-1]
+    return X
