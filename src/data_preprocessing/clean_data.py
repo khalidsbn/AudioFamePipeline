@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.pipeline import Pipeline
-from helper_classes import DropNaN, TextProcessing, DateProcessing
+from helper_classes import DropNaN, TextProcessing, DateProcessing, SubgenreExtractor
+from helper_classes import MsToMinutes, TempoScaler # Audio featues
 
 # Load your dataset
 df = pd.read_csv('../../data/processed/train.csv')
@@ -32,3 +33,22 @@ track_pipeline = Pipeline([
     ('DateProcessing', DateProcessing()),
     ('DropNaN', DropNaN())
 ])
+
+playlist_pipeline = Pipeline([
+    ('PlaylistProcessing', TextProcessing(column_name='playlist_name', feature='playlist')),
+    ('Subgenre', SubgenreExtractor())
+])
+
+audio_features_pipeline = Pipeline([
+    ('MsToMinutes', MsToMinutes()),
+    ('TempoScaler', TempoScaler())
+])
+
+df_track = track_pipeline.fit_transform(df_track)
+df_playlist = playlist_pipeline.fit_transform(df_playlist)
+df_audio = audio_features_pipeline.fit_transform(df_audio)
+
+# Save the processed DataFrames
+df_track.to_csv('../../data/processed/track_data_clean.csv', index=False)
+df_playlist.to_csv('../../data/processed/playlist_data_clean.csv', index=False)
+df_audio.to_csv('../../data/processed/audio_data_clean.csv', index=False)
