@@ -100,3 +100,21 @@ class SubgenreExtractor(BaseEstimator, TransformerMixin):
     X['playlist_subgenre_first_word'] = X.playlist_subgenre.str.split(' ').str[0]
     X['playlist_subgenre_last_word'] = X.playlist_subgenre.str.split(' ').str[-1]
     return X
+
+# Audio features
+class MsToMinutes(BaseEstimator, TransformerMixin):
+  def fit(self, X, y=None):
+    return self
+  def transform(self, X):
+    X['duration_min'] = (X['duration_ms'] / 60000).round(2)
+    return X.drop(['duration_ms'], axis=1)
+  
+# Audiioi features
+from sklearn.preprocessing import StandardScaler
+class TempoScaler(BaseEstimator, TransformerMixin):
+  def fit(self, X, y=None):
+    return self
+  def transform(self, X):
+    sclaer = StandardScaler()
+    X['tempo_scaled'] = sclaer.fit_transform(X[['tempo']])
+    return X.drop(['tempo'], axis=1)
