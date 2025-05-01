@@ -36,7 +36,7 @@ warnings.filterwarnings('ignore')
 nltk.download('punkt_tab')
 nltk.download('stopwords')
 nltk.download('punkt')
-nltk.download('wordnet')
+nltk.download('wordnet', download_dir='/Users/mac/nltk_data')
 
 
 class DropNaN(BaseEstimator, TransformerMixin):
