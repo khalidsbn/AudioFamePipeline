@@ -1,5 +1,20 @@
-import re
+import ssl
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    # Legacy Python that doesn't support ssl._create_unverified_context
+    pass
+else:
+    # Override the default context so downloads don’t verify certs
+    ssl._create_default_https_context = _create_unverified_https_context
+
 import nltk
+# ensure our local folder is searched first
+nltk.data.path.insert(0, './nltk_data')
+
+
+import re
+#import nltk
 import emoji
 import unicodedata
 import pandas as pd
@@ -22,6 +37,7 @@ nltk.download('punkt_tab')
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
+
 
 class DropNaN(BaseEstimator, TransformerMixin):
   def fit(self, X, y=None):
