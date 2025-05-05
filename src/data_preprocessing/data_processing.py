@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.pipeline import Pipeline
 from helper_classes import DropNaN, TextProcessing, DateProcessing, SubgenreExtractor
 from helper_classes import MsToMinutes, TempoScaler # Audio featues
+from helper_classes import MergeTrackData, FixTrackPopularityColumn, Encoder # To prepare data for training
 
 # Load your dataset
 df = pd.read_csv('../../data/processed/train.csv')
@@ -26,6 +27,7 @@ df_track = df[track_metadata]
 df_playlist = df[playlist_metadata]
 df_audio = df[audio_features]
 
+# Pipelines for data processing
 track_pipeline = Pipeline([
     ('TrackNameProcessing', TextProcessing(column_name='track_name', feature='track')),
     ('TrackArtistProcessing', TextProcessing(column_name='track_artist', feature='artist')),
@@ -44,6 +46,7 @@ audio_features_pipeline = Pipeline([
     ('TempoScaler', TempoScaler())
 ])
 
+# Process the datasets
 df_track = track_pipeline.fit_transform(df_track)
 df_playlist = playlist_pipeline.fit_transform(df_playlist)
 df_audio = audio_features_pipeline.fit_transform(df_audio)
@@ -52,3 +55,23 @@ df_audio = audio_features_pipeline.fit_transform(df_audio)
 df_track.to_csv('../../data/processed/track_data_clean.csv', index=False)
 df_playlist.to_csv('../../data/processed/playlist_data_clean.csv', index=False)
 df_audio.to_csv('../../data/processed/audio_data_clean.csv', index=False)
+
+# Prepare datasets for training
+
+# Merging Pipeline
+merge_pipeline = Pipeline([
+    ('merge_tracks', MergeTrackData(df_playlist, df_track)),
+    ('fix_track_popularity', FixTrackPopularityColumn()),
+])
+
+# Merge dataset
+df = merge_pipeline.fit_transform(df_audio)
+
+# Select string features for encoding
+str_cols = df.select_dtypes(include=['object']).columns.tolist()
+
+# Encode string feature
+df[str_cols] = Encoder(str_cols).fit_transform(df[str_cols])
+
+# Save the final dataset
+df.to_csv('../../data/features/data_cleaned.csv', index=False)
