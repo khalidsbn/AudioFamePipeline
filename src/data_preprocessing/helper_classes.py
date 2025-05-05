@@ -27,6 +27,7 @@ from nltk.corpus import stopwords
 from sklearn.pipeline import Pipeline
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
+from sklearn.preprocessing import OrdinalEncoder
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -134,3 +135,47 @@ class TempoScaler(BaseEstimator, TransformerMixin):
     sclaer = StandardScaler()
     X['tempo_scaled'] = sclaer.fit_transform(X[['tempo']])
     return X.drop(['tempo'], axis=1)
+  
+# Class To Merge Datasets
+class MergeTrackData(BaseEstimator, TransformerMixin):
+    def __init__(self, df_playlist, df_track):
+        self.df_playlist = df_playlist
+        self.df_track = df_track
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        # Assume X is df_audio
+        df_playlist_unique = self.df_playlist.drop_duplicates(subset='track_id')
+        df_track_unique = self.df_track.drop_duplicates(subset='track_id')
+
+        df_merged = (
+            pd.merge(X, df_playlist_unique, on='track_id')
+              .merge(df_track_unique, on='track_id')
+        )
+        return df_merged
+    
+# Class To Fix Popularity Column
+class FixTrackPopularityColumn(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X = X.drop(columns=['track_popularity_x', 'track_id', 'track_album_id', 'playlist_id'])
+        X.rename(columns={'track_popularity_y': 'track_popularity'}, inplace=True)
+        return X
+    
+# Encoder Class
+class Encoder(BaseEstimator, TransformerMixin):
+    def __init__(self, columns):
+        self.columns = columns
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        ordinal_encoder = OrdinalEncoder()
+        X[self.columns] = ordinal_encoder.fit_transform(X[self.columns])
+        return X
+    
