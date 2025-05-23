@@ -11,6 +11,12 @@ X = df.drop(columns=['track_popularity'])
 y = df['track_popularity']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
 
+# Save splited data for evaluation
+X_train.to_csv('../../data/processed/X_train.csv', index=False)
+X_test.to_csv('../../data/processed/X_test.csv', index=False)
+y_train.to_csv('../../data/processed/y_train.csv', index=False)
+y_test.to_csv('../../data/processed/y_test.csv', index=False)
+
 # Regression Model
 model = LinearRegression()
 model.fit(X_train, y_train)
